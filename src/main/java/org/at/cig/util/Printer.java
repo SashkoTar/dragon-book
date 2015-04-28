@@ -1,8 +1,8 @@
-package org.at.nfa.regexp.util;
+package org.at.cig.util;
 
 
-import org.at.nfa.regexp.Node;
-import org.at.nfa.regexp.Transition;
+import org.at.cig.common.Node;
+import org.at.cig.common.Transition;
 
 import java.util.Set;
 

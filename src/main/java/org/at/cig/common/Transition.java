@@ -1,4 +1,4 @@
-package org.at.nfa.regexp;
+package org.at.cig.common;
 
 /**
  * Created with IntelliJ IDEA.

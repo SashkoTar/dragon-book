@@ -1,4 +1,4 @@
-package org.at.nfa;
+package org.at.cig.nfa;
 
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import static junit.framework.Assert.assertTrue;
  * Time: 11:43 PM
  * To change this template use File | Settings | File Templates.
  */
-public class NfaConverterTest {
+public class NfaDfaConverterTest {
 
     @Test
     public void setShouldBeEqual() {

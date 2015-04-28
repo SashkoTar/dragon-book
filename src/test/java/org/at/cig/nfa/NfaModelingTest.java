@@ -1,5 +1,6 @@
-package org.at.nfa;
+package org.at.cig.nfa;
 
+import org.at.cig.nfa.NfaModeling;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,6 +1,7 @@
-package org.at.nfa.regexp;
+package org.at.cig.regex;
 
-import org.at.nfa.regexp.util.Printer;
+import org.at.cig.common.Node;
+import org.at.cig.common.Transition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,14 +10,14 @@ import java.util.Map;
 import static junit.framework.Assert.*;
 
 
-public class ConverterTest {
+public class RegexNfaConverterTest {
 
 
-    private Converter converter;
+    private RegexNfaConverter converter;
 
     @Before
     public void init() {
-        this.converter = new Converter();
+        this.converter = new RegexNfaConverter();
     }
 
     @Test

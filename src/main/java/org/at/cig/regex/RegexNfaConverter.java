@@ -1,13 +1,10 @@
-package org.at.nfa.regexp;
+package org.at.cig.regex;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Sashko
- * Date: 4/24/15
- * Time: 1:31 PM
- * To change this template use File | Settings | File Templates.
- */
-public class Converter {
+import org.at.cig.common.Node;
+import org.at.cig.common.Transition;
+
+// This class converts Reg to  NFA using algorithm 3.23 (McNaughton-Yamada- Thompson)
+public class RegexNfaConverter {
 
     public Node concat(Node s, Node t) {
         for(Transition transition : s.getTransitions().keySet()) {

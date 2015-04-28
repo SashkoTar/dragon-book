@@ -1,17 +1,11 @@
-package org.at.nfa.regexp;
+package org.at.cig.common;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Sashko
- * Date: 4/24/15
- * Time: 12:22 PM
- * To change this template use File | Settings | File Templates.
- */
+
 public class Node {
     private boolean start;
     private boolean finish;

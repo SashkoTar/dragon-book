@@ -1,8 +1,8 @@
-package org.at.nfa.regexp.util;
+package org.at.cig.util;
 
-import org.at.nfa.regexp.Converter;
-import org.at.nfa.regexp.Node;
-import org.at.nfa.regexp.Transition;
+import org.at.cig.regex.RegexNfaConverter;
+import org.at.cig.common.Node;
+import org.at.cig.common.Transition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,11 +19,11 @@ import static junit.framework.Assert.assertTrue;
  */
 public class PrinterTest {
 
-    private Converter converter;
+    private RegexNfaConverter converter;
 
     @Before
     public void init() {
-        this.converter = new Converter();
+        this.converter = new RegexNfaConverter();
     }
 
     @Test
