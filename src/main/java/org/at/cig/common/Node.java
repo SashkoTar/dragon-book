@@ -43,8 +43,12 @@ public class Node {
     }
 
     public static Node build() {
+        return build("States-"+count);
+    }
+
+    public static Node build(String name) {
         Node node = new Node();
-        node.name = "States-"+count;
+        node.name = name;
         count++;
         nodes.add(node);
         return node;
