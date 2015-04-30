@@ -1,21 +1,21 @@
 package org.at.cig.common;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class Node {
+    public enum NodeType {CAT, START, OR, OPERAND}
+
     private boolean start;
     private boolean finish;
     private Map<Transition, Node> transitions;
     private static Set<Node> nodes = new HashSet<Node>();
     private String name;
+    private NodeType type;
     private static int count = 0;
 
     private Node() {
-        transitions = new HashMap<Transition, Node>();
+        transitions = new LinkedHashMap<Transition, Node>();
     }
 
     public boolean isStart() {
@@ -56,6 +56,14 @@ public class Node {
 
     public String getName() {
         return name;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public void setType(NodeType type) {
+        this.type = type;
     }
 
     public static Set<Node> getNodes() {
