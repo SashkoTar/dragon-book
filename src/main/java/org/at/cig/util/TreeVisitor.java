@@ -16,6 +16,7 @@ public class TreeVisitor {
     private Map<Node, Set<Integer>> firstPos = new HashMap<Node, Set<Integer>>();
     private Map<Node, Set<Integer>> lastPos = new HashMap<Node, Set<Integer>>();
     private Map<Integer, Set<Integer>> followPos = new HashMap<Integer, Set<Integer>>();
+    private Map<Integer, Node> operandPosition = new HashMap<Integer, Node>();
 
     private int position = 1;
 
@@ -24,6 +25,10 @@ public class TreeVisitor {
         System.out.println("--------- FOLLOWPOS---------");
         for(Integer position : followPos.keySet()) {
             System.out.println("Position " + position + " ==> " + followPos.get(position));
+        }
+        System.out.println("--------- OPERANDS---------");
+        for(Integer position : operandPosition.keySet()) {
+            System.out.println("Position " + position + " Operand " + operandPosition.get(position).getName());
         }
     }
 
@@ -75,6 +80,7 @@ public class TreeVisitor {
         if (isNodeOperand()) {
             firstPos.put(node, new HashSet<Integer>());
             firstPos.get(node).add(position);
+            operandPosition.put(position, node);
             position++;
         }
         if (isNodeOr()) {
@@ -181,5 +187,17 @@ public class TreeVisitor {
         System.out.println("First Pos Is : " + firstPos.get(visitedNode));
         System.out.println("Last Pos Is : " + lastPos.get(visitedNode));
         System.out.println("--------------------------------");
+    }
+
+    public Map<Node, Set<Integer>> getFirstPos() {
+        return firstPos;
+    }
+
+    public Map<Integer, Set<Integer>> getFollowPos() {
+        return followPos;
+    }
+
+    public Map<Integer, Node> getOperandPosition() {
+        return operandPosition;
     }
 }

@@ -58,8 +58,28 @@ public class InfixPostfixConverterTest {
     }
 
     @Test
+    public void shouldConvert9() {
+        InfixPostfixConverter converter = new InfixPostfixConverter();
+        assertEquals("ab.*", converter.handle("(ab)*"));
+    }
+
+    @Test
+    public void shouldConvert10() {
+        InfixPostfixConverter converter = new InfixPostfixConverter();
+        assertEquals("ab|*", converter.handle("(a|b)*"));
+    }
+
+    @Test
+    public void shouldConvert11() {
+        InfixPostfixConverter converter = new InfixPostfixConverter();
+        assertEquals("ab|*a.", converter.handle("(a|b)*a"));
+    }
+
+    @Test
     public void shouldConvertAndPrint() {
         InfixPostfixConverter converter = new InfixPostfixConverter();
-        System.out.println(converter.handle("abb(c|dc*)bb"));
+      //  System.out.println(converter.handle("abb(c|dc*)bb"));
+        System.out.println(converter.handle("(a|b)*abb#"));
+       // System.out.println(converter.makeStringInfixed("(a|b)*a"));
     }
 }

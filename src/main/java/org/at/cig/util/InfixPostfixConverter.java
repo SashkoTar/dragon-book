@@ -38,7 +38,7 @@ public class InfixPostfixConverter {
 
 
 
-    private String makeStringInfixed(String s) {
+    public String makeStringInfixed(String s) {
         StringBuilder result = new StringBuilder();
         char currentChar;
         for(int i = 0; i < s.length(); i++) {
@@ -52,7 +52,7 @@ public class InfixPostfixConverter {
     }
 
     private boolean isCurrentCharOperand(char s) {
-        return "(.|*".indexOf(s) < 0;
+        return "(.|".indexOf(s) < 0;
     }
 
     private boolean isNextCharOperand(String s, int i) {

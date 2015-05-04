@@ -28,6 +28,7 @@ public class TreeBuilder {
     public TreeBuilder fromRoot(String nodeName) {
         from(nodeName);
         nodeStart.setType(Node.NodeType.CAT);
+        nodeStart.setStart(true);
         return from(nodeName);
     }
 
