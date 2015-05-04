@@ -4,7 +4,8 @@ import java.util.*;
 
 
 public class Node {
-    public enum NodeType {CAT, START, OR, OPERAND}
+
+    public enum NodeType {CAT, STAR, OR, OPERAND}
 
     private boolean start;
     private boolean finish;

@@ -1,23 +1,15 @@
 package org.at.cig.util;
 
 import org.at.cig.common.Node;
-import org.at.cig.dsl.GraphBuilder;
 import org.at.cig.dsl.TreeBuilder;
-import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created by otarasenko on 4/30/15.
- */
-public class TreeVisitorTest {
 
-    Node treeRoot;
-    TreeVisitor visitor;
+public class TreeBuilderTest {
 
-    @Before
-    public void init() {
+    // @Test
+    public void shouldBuildAndPrintGraph() {
         TreeBuilder builder = new TreeBuilder();
-        treeRoot =
         builder
                 .fromRoot("s0")
                 .addCatChild("s1")
@@ -38,11 +30,26 @@ public class TreeVisitorTest {
                 .addLeafChild("b")
                 .build();
 
-         visitor =  new TreeVisitor();
+        print();
     }
 
     @Test
-    public void shouldTraverseTree() {
-        visitor.run(treeRoot);
+    public void shouldBuildAndPrintGraph2() {
+        TreeBuilder builder = new TreeBuilder();
+        builder
+                .fromRoot("s0")
+                .addCatChild("s1")
+                .addLeafChild("#")
+                .from("s1")
+                .addLeafChild("a")
+                .addLeafChild("b")
+
+                .build();
+
+        print();
+    }
+
+    private void print() {
+        Printer.out(Node.getNodes());
     }
 }
