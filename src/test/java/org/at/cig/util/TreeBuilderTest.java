@@ -10,6 +10,7 @@ import java.util.Stack;
 
 public class TreeBuilderTest {
 
+
     // @Test
     public void shouldBuildAndPrintGraph() {
         TreeBuilder builder = new TreeBuilder();
@@ -52,39 +53,7 @@ public class TreeBuilderTest {
         print();
     }
 
-    @Test
-    public void shouldBuildFromPostfixString() {
-        Stack<Node> stack = new Stack<Node>();
-        TreeBuilder builder = new TreeBuilder();
-        StringBuilder input = new StringBuilder("ab|*a.b.b.#.");
-        String[] tokens = input.reverse().toString().split("");
-        for(String symbol : tokens) {
-            if(isOperand(symbol)) {
-                stack.push(addLeafNode(symbol));
-            }
-            if(isOr(symbol)) {
-                Node or = Node.build();
-                Node rightChild = stack.pop();
-                Node leftChild = stack.pop();
-                or.getTransitions().put(new Transition(), leftChild);
-                or.getTransitions().put(new Transition(), rightChild);
-                stack.push(or);
-            }
-        }
 
-    }
-
-    private boolean isOr(String symbol) {
-        return false;
-    }
-
-    private Node addLeafNode(String symbol) {
-        return Node.build();
-    }
-
-    private boolean isOperand(String symbol) {
-        return true;
-    }
 
     private void print() {
         Printer.out(Node.getNodes());
