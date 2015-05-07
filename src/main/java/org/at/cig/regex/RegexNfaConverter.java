@@ -2,6 +2,10 @@ package org.at.cig.regex;
 
 import org.at.cig.common.Node;
 import org.at.cig.common.Transition;
+import org.at.cig.util.InfixPostfixConverter;
+import org.at.cig.util.Printer;
+import org.at.cig.util.RegexParser;
+import org.at.cig.util.TreeVisitor;
 
 // This class converts Reg to  NFA using algorithm 3.23 (McNaughton-Yamada- Thompson)
 public class RegexNfaConverter {
@@ -61,4 +65,22 @@ public class RegexNfaConverter {
         }
         return null;
     }
+
+    public void run() {
+
+        InfixPostfixConverter infixPostfixConverter = new InfixPostfixConverter();
+        String converted = infixPostfixConverter.handle("(a|b)*abb");
+        RegexParser parser = new RegexParser();
+        Node node = parser.parse(converted);
+        Printer.out(Node.getNodes());
+   //     TreeVisitor visitor = new TreeVisitor();
+    //    visitor.run(parser.parse(converted));
+
+    }
+
+    public static void main(String[] args) {
+        RegexNfaConverter converter = new RegexNfaConverter();
+        converter.run();
+    }
+
 }
