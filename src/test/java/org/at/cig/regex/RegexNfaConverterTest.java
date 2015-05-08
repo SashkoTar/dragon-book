@@ -21,22 +21,25 @@ public class RegexNfaConverterTest {
     }
 
     @Test
-    public void shouldConcat() {
-        Node s = buildSimpleGraphFor("s");
-        Node t = buildSimpleGraphFor("t");
-        assertTrue(getTransition(s, "s").isFinish());
-        converter.concat(s, t);
-        assertFalse(getTransition(s, "s").isFinish());
+    public void shouldHandleOperand() {
+       Node sNode = converter.operand("s");
+       assertEquals(1, sNode.getTransitions().size());
+       assertTrue(isStrictlyStart(sNode));
+       Node tNode = getFirstTransition(sNode);
+       assertTrue(isStrictlyFinish(tNode));
     }
 
     @Test
-    public void shouldConcat2() {
-        Node sStart = buildSimpleGraphFor("s");
-        Node tStart = buildSimpleGraphFor("t");
+    public void shouldConcat() {
+        Node s = buildSimpleGraphFor("s");
+        Node t = buildSimpleGraphFor("t");
 
-        converter.concat(sStart, tStart);
-        Node s = getTransition(sStart, "s");
-        assertTrue(getTransition(s, "t").isFinish());
+        converter.concat(s, t);
+        assertTrue(isStrictlyStart(s));
+        Node internalNode = getTransition(s, "s");
+        assertTrue(isStrictlyInternal(internalNode));
+        Node fNode = getTransition(internalNode, "t");
+        assertTrue(isStrictlyFinish(fNode));
     }
 
     @Test
@@ -46,16 +49,28 @@ public class RegexNfaConverterTest {
 
         Node start = converter.or(sStart, tStart);
         assertEquals(2, start.getTransitions().size());
+        assertTrue(isStrictlyStart(start));
 
         Transition[] transitions = getEmptyTransitions(start.getTransitions());
         //q      ---------> sS --------------->S  ------->f
-        Node beforeS = start.getTransitions().get(transitions[0]);
-        Node s = getFirstTransition(beforeS);
-        Node f = getFirstTransition(s);
 
-        Node beforeT = start.getTransitions().get(transitions[0]);
+
+        Node beforeS = start.getTransitions().get(transitions[0]);
+        assertTrue(isStrictlyInternal(beforeS));
+        Node s = getFirstTransition(beforeS);
+        assertTrue(isStrictlyInternal(s));
+        Node f = getFirstTransition(s);
+        assertTrue(isStrictlyFinish(f));
+
+        Node beforeT = start.getTransitions().get(transitions[1]);
+        assertTrue(isStrictlyInternal(beforeT));
+
         Node t = getFirstTransition(beforeT);
+        assertTrue(isStrictlyInternal(t));
+
         Node f1 = getFirstTransition(t);
+        assertTrue(isStrictlyFinish(f1));
+
 
         assertTrue(f == f1);
     }
@@ -94,6 +109,45 @@ public class RegexNfaConverterTest {
         assertTrue(internal == internal1);
     }
 
+    @Test
+    public void shouldSetCorrectTypesForStar() {
+        Node sStart = buildSimpleGraphFor("s");
+        Node startNode = converter.star(sStart);
+        assertTrue(isStrictlyStart(startNode));
+        Transition[] transitions = getEmptyTransitions(startNode.getTransitions());
+        Node fNode = startNode.getTransitions().get(transitions[0]);
+        Node next;
+        if(fNode.getTransitions().size() == 0) {
+            next = startNode.getTransitions().get(transitions[1]);
+        } else {
+            next = startNode.getTransitions().get(transitions[0]);
+            fNode = startNode.getTransitions().get(transitions[1]);
+        }
+        assertTrue(isStrictlyFinish(fNode));
+        assertTrue(isStrictlyInternal(next));
+        Node s = getTransition(next, "s");
+        assertTrue(isStrictlyInternal(s));
+
+    }
+
+    @Test
+    public void shouldHandleString() {
+        Node node = converter.convert("ab.");
+        Node s = getTransition(node, "a");
+        assertTrue(getTransition(s, "b").isFinish());
+    }
+
+    private boolean isStrictlyStart(Node node) {
+        return node.isStart() && !node.isFinish();
+    }
+
+    private boolean isStrictlyFinish(Node node) {
+        return !node.isStart() && node.isFinish();
+    }
+
+    private boolean isStrictlyInternal(Node node) {
+        return !node.isStart() && !node.isFinish();
+    }
 
     private Transition[] getEmptyTransitions(Map<Transition, Node> transitions) {
         return transitions.keySet().toArray(new Transition[2]);
@@ -116,13 +170,6 @@ public class RegexNfaConverterTest {
     }
 
     private Node buildSimpleGraphFor(String s) {
-        Node startNode = Node.build();
-        startNode.setStart(true);
-        Transition a = new Transition(s);
-        Node finishNode = Node.build();
-        finishNode.setFinish(true);
-
-        startNode.getTransitions().put(a, finishNode);
-        return startNode;
+        return converter.operand(s);
     }
 }

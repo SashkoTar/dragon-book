@@ -7,12 +7,15 @@ import org.at.cig.util.Printer;
 import org.at.cig.util.RegexParser;
 import org.at.cig.util.TreeVisitor;
 
+import java.util.Stack;
+
 // This class converts Reg to  NFA using algorithm 3.23 (McNaughton-Yamada- Thompson)
 public class RegexNfaConverter {
 
     public Node concat(Node s, Node t) {
         for(Transition transition : s.getTransitions().keySet()) {
             if(s.getTransitions().get(transition).isFinish()) {
+                t.setStart(false);
                 s.getTransitions().put(transition, t);
             }
         }
@@ -23,15 +26,25 @@ public class RegexNfaConverter {
         Node finish = Node.build();
         finish.setFinish(true);
 
+        sStart.setStart(false);
+        sStart.setFinish(false);
+
         Node s = getFirstTransition(sStart);
+        s.setFinish(false);
         s.getTransitions().put(new Transition(), finish);
 
+        tStart.setStart(false);
+        tStart.setFinish(false);
+
         Node t = getFirstTransition(tStart);
+        t.setFinish(false);
+
         t.getTransitions().put(new Transition(), finish);
 
         Node start = Node.build();
-        start.getTransitions().put(new Transition(), s);
-        start.getTransitions().put(new Transition(), t);
+        start.setStart(true);
+        start.getTransitions().put(new Transition(), sStart);
+        start.getTransitions().put(new Transition(), tStart);
 
         return start;
     }
@@ -59,6 +72,17 @@ public class RegexNfaConverter {
         return start;
     }
 
+    public Node operand(String s) {
+        Node startNode = Node.build();
+        startNode.setStart(true);
+        Transition a = new Transition(s);
+        Node finishNode = Node.build();
+        finishNode.setFinish(true);
+
+        startNode.getTransitions().put(a, finishNode);
+        return startNode;
+    }
+
     private Node getFirstTransition(Node node) {
         for(Transition transition : node.getTransitions().keySet()) {
             return node.getTransitions().get(transition);
@@ -66,16 +90,13 @@ public class RegexNfaConverter {
         return null;
     }
 
+
     public void run() {
-
         InfixPostfixConverter infixPostfixConverter = new InfixPostfixConverter();
-        String converted = infixPostfixConverter.handle("(a|b)*abb");
-        RegexParser parser = new RegexParser();
-        Node node = parser.parse(converted);
-        Printer.out(Node.getNodes());
-   //     TreeVisitor visitor = new TreeVisitor();
-    //    visitor.run(parser.parse(converted));
-
+         //String converted = infixPostfixConverter.handle("(a|b)*abb");
+         String converted = infixPostfixConverter.handle("baa|a");
+        convert(converted);
+        Printer.outDot(Node.getNodes());
     }
 
     public static void main(String[] args) {
@@ -83,4 +104,32 @@ public class RegexNfaConverter {
         converter.run();
     }
 
+    public Node convert(String s) {
+        Stack<Node> stack = new Stack<Node>();
+        for(int i=0; i < s.length(); i++) {
+            switch (s.charAt(i)) {
+                default:
+                    stack.push(operand(Character.toString(s.charAt(i))));
+                    break;
+                case '*':
+                    Node node = stack.pop();
+                    node = star(node);
+                    stack.push(node);
+                    break;
+                case '.':
+                    Node tNode = stack.pop();
+                    Node sNode = stack.pop();
+                    Node cNode = concat(sNode, tNode);
+                    stack.push(cNode);
+                    break;
+                case '|':
+                    tNode = stack.pop();
+                    sNode = stack.pop();
+                    cNode = or(sNode, tNode);
+                    stack.push(cNode);
+                    break;
+            }
+        }
+        return stack.pop();
+    }
 }

@@ -44,7 +44,7 @@ public class Node {
     }
 
     public static Node build() {
-        return build("States-"+count);
+        return build("States"+count);
     }
 
     public static Node build(String name) {
