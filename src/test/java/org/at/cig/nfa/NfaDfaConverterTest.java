@@ -33,7 +33,7 @@ public class NfaDfaConverterTest {
 
     }
 
-    @Test
+  //  @Test
     public void shouldContain() {
         Set<Integer> set1 = new HashSet<Integer>();
         set1.add(1);

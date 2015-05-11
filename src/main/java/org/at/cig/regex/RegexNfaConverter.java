@@ -1,100 +1,72 @@
 package org.at.cig.regex;
 
+import org.at.cig.common.Fragment;
 import org.at.cig.common.Node;
-import org.at.cig.common.Transition;
 import org.at.cig.util.InfixPostfixConverter;
 import org.at.cig.util.Printer;
-import org.at.cig.util.RegexParser;
-import org.at.cig.util.TreeVisitor;
 
 import java.util.Stack;
 
 // This class converts Reg to  NFA using algorithm 3.23 (McNaughton-Yamada- Thompson)
 public class RegexNfaConverter {
 
-    public Node concat(Node s, Node t) {
-        for(Transition transition : s.getTransitions().keySet()) {
-            if(s.getTransitions().get(transition).isFinish()) {
-                t.setStart(false);
-                s.getTransitions().put(transition, t);
-            }
-        }
+
+    public Fragment concat(Fragment s, Fragment t) {
+        copyStartToTail(t.getStartNode(), s.getTailNode());
+        s.setTailNode(t.getTailNode());
         return s;
     }
 
-    public Node or(Node sStart, Node tStart) {
-        Node finish = Node.build();
-        finish.setFinish(true);
-
-        sStart.setStart(false);
-        sStart.setFinish(false);
-
-        Node s = getFirstTransition(sStart);
-        s.setFinish(false);
-        s.getTransitions().put(new Transition(), finish);
-
-        tStart.setStart(false);
-        tStart.setFinish(false);
-
-        Node t = getFirstTransition(tStart);
-        t.setFinish(false);
-
-        t.getTransitions().put(new Transition(), finish);
-
-        Node start = Node.build();
-        start.setStart(true);
-        start.getTransitions().put(new Transition(), sStart);
-        start.getTransitions().put(new Transition(), tStart);
-
-        return start;
+    private void copyStartToTail(Node start , Node tail) {
+        tail.getTransitions().putAll(start.getTransitions());
+        start.getTransitions().clear();
+        Node.getNodes().remove(start);
+        tail.setFinish(false);
     }
 
-    public Node star(Node node) {
-        node.setStart(false);
 
-        Node start = Node.build();
-        start.setStart(true);
-        Node finish = Node.build();
-        finish.setFinish(true);
-        start.getTransitions().put(new Transition(), finish);
-        start.getTransitions().put(new Transition(), node);
 
-        //Replace Finish Node
-        for(Transition transition : node.getTransitions().keySet()) {
-            if(node.getTransitions().get(transition).isFinish()) {
-              //  s.getTransitions().put(transition, t);
-                node.getTransitions().get(transition).setFinish(false);
-                node.getTransitions().get(transition).getTransitions().put(new Transition(), finish);
-                node.getTransitions().get(transition).getTransitions().put(new Transition(), node);
-            }
-        }
+    public Fragment or(Fragment sF, Fragment tF) {
+        makeNodeInternal(sF.getStartNode());
+        makeNodeInternal(tF.getStartNode());
+        makeNodeInternal(sF.getTailNode());
+        makeNodeInternal(tF.getTailNode());
 
-        return start;
+        Fragment fragment = new Fragment();
+        fragment.addEmptyTransitionFromStartNodeToNode(sF.getStartNode());
+        fragment.addEmptyTransitionFromStartNodeToNode(tF.getStartNode());
+
+        sF.addEmptyTransitionFromTailNodeToNode(fragment.getTailNode());
+        tF.addEmptyTransitionFromTailNodeToNode(fragment.getTailNode());
+        return fragment;
     }
 
-    public Node operand(String s) {
-        Node startNode = Node.build();
-        startNode.setStart(true);
-        Transition a = new Transition(s);
-        Node finishNode = Node.build();
-        finishNode.setFinish(true);
 
-        startNode.getTransitions().put(a, finishNode);
-        return startNode;
+
+    public Fragment star(Fragment sF) {
+        Fragment fragment = new Fragment();
+        fragment.addEmptyTransitionFromStartNodeToNode(sF.getStartNode());
+        makeNodeInternal(sF.getStartNode());
+        fragment.addEmptyTransitionFromStartNodeToNode(fragment.getTailNode());
+        makeNodeInternal(sF.getTailNode());
+        sF.addEmptyTransitionFromTailNodeToNode(fragment.getTailNode());
+        sF.addEmptyTransitionFromTailNodeToNode(sF.getStartNode());
+        return fragment;
     }
 
-    private Node getFirstTransition(Node node) {
-        for(Transition transition : node.getTransitions().keySet()) {
-            return node.getTransitions().get(transition);
-        }
-        return null;
+
+    public Fragment operand(String s) {
+        Fragment fragment = new Fragment();
+        fragment.addTransitionFromStartNodeToNode(s, fragment.getTailNode());
+        return fragment;
     }
 
 
     public void run() {
         InfixPostfixConverter infixPostfixConverter = new InfixPostfixConverter();
-         //String converted = infixPostfixConverter.handle("(a|b)*abb");
-         String converted = infixPostfixConverter.handle("baa|a");
+        //String converted = infixPostfixConverter.handle("(a|b)*abb");
+        // String converted = infixPostfixConverter.handle("baa|a");
+        String converted = infixPostfixConverter.handle("abb(a|bc*|ba)");
         convert(converted);
         Printer.outDot(Node.getNodes());
     }
@@ -104,32 +76,40 @@ public class RegexNfaConverter {
         converter.run();
     }
 
-    public Node convert(String s) {
-        Stack<Node> stack = new Stack<Node>();
-        for(int i=0; i < s.length(); i++) {
+    private Node makeNodeInternal(Node node) {
+        node.setFinish(false);
+        node.setStart(false);
+        return node;
+    }
+
+    public Fragment convert(String s) {
+        Stack<Fragment> stack = new Stack<Fragment>();
+        for (int i = 0; i < s.length(); i++) {
             switch (s.charAt(i)) {
                 default:
                     stack.push(operand(Character.toString(s.charAt(i))));
                     break;
                 case '*':
-                    Node node = stack.pop();
+                    Fragment node = stack.pop();
                     node = star(node);
                     stack.push(node);
                     break;
                 case '.':
-                    Node tNode = stack.pop();
-                    Node sNode = stack.pop();
-                    Node cNode = concat(sNode, tNode);
-                    stack.push(cNode);
+                    Fragment fragmentT = stack.pop();
+                    Fragment fragmentS = stack.pop();
+                    Fragment fragmentST = concat(fragmentS, fragmentT);
+                    stack.push(fragmentST);
                     break;
                 case '|':
-                    tNode = stack.pop();
-                    sNode = stack.pop();
-                    cNode = or(sNode, tNode);
-                    stack.push(cNode);
+                    fragmentT = stack.pop();
+                    fragmentS = stack.pop();
+                    Fragment fragmentSorT = or(fragmentS, fragmentT);
+                    stack.push(fragmentSorT);
                     break;
             }
         }
         return stack.pop();
     }
+
+
 }

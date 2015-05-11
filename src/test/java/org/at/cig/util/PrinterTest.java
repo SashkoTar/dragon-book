@@ -26,13 +26,6 @@ public class PrinterTest {
         this.converter = new RegexNfaConverter();
     }
 
-    @Test
-    public void shouldStar() {
-        Node sStart = buildSimpleGraphFor("s");
-        converter.star(sStart);
-        Printer.out(Node.getNodes());
-
-    }
 
     private Node buildSimpleGraphFor(String s) {
         Node startNode = Node.build();

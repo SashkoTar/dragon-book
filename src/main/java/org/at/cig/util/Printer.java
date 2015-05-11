@@ -34,6 +34,21 @@ public class Printer {
 
     // http://graphs.grevian.org/graph/6058848288768000
     public static void outDot(Set<Node> nodes) {
+        String finishNodes = "node [shape = doublecircle]; ";
+        String startNodes = "node [shape = Mcircle]; ";
+        for(Node node: nodes) {
+           if(node.isFinish()) {
+               finishNodes += " " + node.getName();
+           }
+            if(node.isStart()) {
+                startNodes += " " + node.getName();
+            }
+        }
+        System.out.println("rankdir=TB;");
+        System.out.println("size=\"8,5\"");
+        System.out.println(startNodes + ";");
+        System.out.println(finishNodes + ";");
+        System.out.println("node [shape = circle];");
         for(Node node : nodes) {
             for(Transition transition : node.getTransitions().keySet()) {
                 if(transition.isEmty()) {

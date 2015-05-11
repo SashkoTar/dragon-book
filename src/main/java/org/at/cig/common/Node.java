@@ -70,4 +70,12 @@ public class Node {
     public static Set<Node> getNodes() {
         return nodes;
     }
+
+    public void addEmptyTransitionToNode(Node node) {
+       this.transitions.put(new Transition(), node);
+    }
+
+    public void addTransitionToNode(String s, Node node) {
+        this.transitions.put(new Transition(s), node);
+    }
 }

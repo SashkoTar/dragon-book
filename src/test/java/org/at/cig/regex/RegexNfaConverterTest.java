@@ -1,5 +1,6 @@
 package org.at.cig.regex;
 
+import org.at.cig.common.Fragment;
 import org.at.cig.common.Node;
 import org.at.cig.common.Transition;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 
 public class RegexNfaConverterTest {
@@ -18,48 +20,97 @@ public class RegexNfaConverterTest {
     @Before
     public void init() {
         this.converter = new RegexNfaConverter();
+        Node.getNodes().clear();
     }
+
+
 
     @Test
     public void shouldHandleOperand() {
-       Node sNode = converter.operand("s");
-       assertEquals(1, sNode.getTransitions().size());
-       assertTrue(isStrictlyStart(sNode));
-       Node tNode = getFirstTransition(sNode);
-       assertTrue(isStrictlyFinish(tNode));
+        Fragment fragment = converter.operand("s");
+        Node outS = fragment.getStartNode();
+        assertEquals(1, outS.getTransitions().size());
+        assertTrue(isStrictlyStart(outS));
+
+        Node inS = getFirstTransition(outS);
+        assertEquals(inS, fragment.getTailNode());
+        assertTrue(isStrictlyFinish(inS));
+    }
+
+
+    @Test
+    public void shouldHaveTwoNodesInGraphAfterOperandCall() {
+        converter.operand("s");
+        assertEquals(2, Node.getNodes().size());
     }
 
     @Test
-    public void shouldConcat() {
-        Node s = buildSimpleGraphFor("s");
-        Node t = buildSimpleGraphFor("t");
+    public void shouldHaveOneTransitionInGraphAfterOperandCall() {
+        converter.operand("s");
+        assertEquals(1, calculateTotalTransitionNumber());
+    }
 
-        converter.concat(s, t);
-        assertTrue(isStrictlyStart(s));
-        Node internalNode = getTransition(s, "s");
-        assertTrue(isStrictlyInternal(internalNode));
-        Node fNode = getTransition(internalNode, "t");
-        assertTrue(isStrictlyFinish(fNode));
+    private int calculateTotalTransitionNumber() {
+        int totalTransitionNumber = 0;
+        for(Node node : Node.getNodes()) {
+            totalTransitionNumber += node.getTransitions().size();
+        }
+        return totalTransitionNumber;
+    }
+
+
+    @Test
+    public void shouldConcat() {
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
+
+        sF = converter.concat(sF, tF);
+
+        Node outS = sF.getStartNode();
+        assertTrue(isStrictlyStart(outS));
+        Node inS = getTransition(outS, "s");
+        assertTrue("Non internal", isStrictlyInternal(inS));
+        Node inT = getTransition(inS, "t");
+        assertTrue(isStrictlyFinish(inT));
+        assertEquals(sF.getTailNode(), inT);
+    }
+
+    @Test
+    public void shouldHaveTreeNodesInGraphAfterConcatCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
+
+        converter.concat(sF, tF);
+        assertEquals(3, Node.getNodes().size());
+    }
+
+    @Test
+    public void shouldHaveTwoTransitionsInGraphAfterOperandCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
+
+        converter.concat(sF, tF);
+        assertEquals(2, calculateTotalTransitionNumber());
     }
 
     @Test
     public void shouldOr() {
-        Node sStart = buildSimpleGraphFor("s");
-        Node tStart = buildSimpleGraphFor("t");
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
 
-        Node start = converter.or(sStart, tStart);
+        sF = converter.or(sF, tF);
+        Node start = sF.getStartNode();
         assertEquals(2, start.getTransitions().size());
         assertTrue(isStrictlyStart(start));
 
         Transition[] transitions = getEmptyTransitions(start.getTransitions());
         //q      ---------> sS --------------->S  ------->f
 
-
-        Node beforeS = start.getTransitions().get(transitions[0]);
-        assertTrue(isStrictlyInternal(beforeS));
-        Node s = getFirstTransition(beforeS);
-        assertTrue(isStrictlyInternal(s));
-        Node f = getFirstTransition(s);
+        Node outS = start.getTransitions().get(transitions[0]);
+        assertTrue(isStrictlyInternal(outS));
+        Node inS = getFirstTransition(outS);
+        assertTrue(isStrictlyInternal(inS));
+        Node f = getFirstTransition(inS);
         assertTrue(isStrictlyFinish(f));
 
         Node beforeT = start.getTransitions().get(transitions[1]);
@@ -71,14 +122,35 @@ public class RegexNfaConverterTest {
         Node f1 = getFirstTransition(t);
         assertTrue(isStrictlyFinish(f1));
 
-
         assertTrue(f == f1);
+        assertEquals(sF.getTailNode(), f);
+    }
+
+    @Test
+    public void shouldHaveSixTransitionsInGraphAfterOrCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
+
+        sF = converter.or(sF, tF);
+        assertEquals(6, calculateTotalTransitionNumber());
+    }
+
+    @Test
+    public void shouldHaveSixNodesInGraphAfterOrCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
+        Fragment tF = buildSimpleFragmentFor("t");
+
+        converter.or(sF, tF);
+        assertEquals(6, Node.getNodes().size());
     }
 
     @Test
     public void shouldStar() {
-        Node sStart = buildSimpleGraphFor("s");
-        Node startNode = converter.star(sStart);
+        Fragment sF = buildSimpleFragmentFor("s");
+
+        sF = converter.star(sF);
+        Node startNode = sF.getStartNode();
+
         Transition[] transitions = getEmptyTransitions(startNode.getTransitions());
         assertEquals(2, transitions.length);
         Node finish;
@@ -107,33 +179,29 @@ public class RegexNfaConverterTest {
         }
         assertTrue(finish == finish1);
         assertTrue(internal == internal1);
+        assertEquals(sF.getTailNode(), finish);
     }
 
     @Test
-    public void shouldSetCorrectTypesForStar() {
-        Node sStart = buildSimpleGraphFor("s");
-        Node startNode = converter.star(sStart);
-        assertTrue(isStrictlyStart(startNode));
-        Transition[] transitions = getEmptyTransitions(startNode.getTransitions());
-        Node fNode = startNode.getTransitions().get(transitions[0]);
-        Node next;
-        if(fNode.getTransitions().size() == 0) {
-            next = startNode.getTransitions().get(transitions[1]);
-        } else {
-            next = startNode.getTransitions().get(transitions[0]);
-            fNode = startNode.getTransitions().get(transitions[1]);
-        }
-        assertTrue(isStrictlyFinish(fNode));
-        assertTrue(isStrictlyInternal(next));
-        Node s = getTransition(next, "s");
-        assertTrue(isStrictlyInternal(s));
+    public void shouldHaveFourNodesInGraphAfterStarCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
 
+        converter.star(sF);
+        assertEquals(4, Node.getNodes().size());
+    }
+
+    @Test
+    public void shouldHaveFiveTransitionsInGraphAfterStarCall() {
+        Fragment sF = buildSimpleFragmentFor("s");
+
+        converter.star(sF);
+        assertEquals(5, calculateTotalTransitionNumber());
     }
 
     @Test
     public void shouldHandleString() {
-        Node node = converter.convert("ab.");
-        Node s = getTransition(node, "a");
+        Fragment node = converter.convert("ab.");
+        Node s = getTransition(node.getStartNode(), "a");
         assertTrue(getTransition(s, "b").isFinish());
     }
 
@@ -169,7 +237,8 @@ public class RegexNfaConverterTest {
         return null;
     }
 
-    private Node buildSimpleGraphFor(String s) {
+
+    private Fragment buildSimpleFragmentFor(String s) {
         return converter.operand(s);
     }
 }
