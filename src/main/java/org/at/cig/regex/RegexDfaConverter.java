@@ -76,15 +76,14 @@ builder
         .addLeafChild("b")
         .build();*/
         InfixPostfixConverter infixPostfixConverter = new InfixPostfixConverter();
-        String converted = infixPostfixConverter.handle("(a|b)*abb#");
+        String converted = infixPostfixConverter.handle("(a|b|c)*abb#");
         RegexParser parser = new RegexParser();
         TreeVisitor visitor = new TreeVisitor();
         visitor.run(parser.parse(converted));
         this.operandPosition = visitor.getOperandPosition();
         this.firstPos = visitor.getFirstPos();
         this.followPos = visitor.getFollowPos();
-        alphabet.add("a");
-        alphabet.add("b");
+        this.alphabet = visitor.getAlphabet();
         convert();
         dTran.print();
     }

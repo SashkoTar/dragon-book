@@ -17,6 +17,7 @@ public class TreeVisitor {
     private Map<Node, Set<Integer>> lastPos = new HashMap<Node, Set<Integer>>();
     private Map<Integer, Set<Integer>> followPos = new HashMap<Integer, Set<Integer>>();
     private Map<Integer, Node> operandPosition = new HashMap<Integer, Node>();
+    private Set<String> alphabet = new HashSet<String>();
 
     private int position = 1;
 
@@ -42,6 +43,9 @@ public class TreeVisitor {
 
     private void handleNode(Node node) {
         visitedNode = node;
+        if(isNodeOperand() && !node.getName().equals("#")) {
+            alphabet.add(node.getName());
+        }
         computeNullability(node);
         computeFirstPos(node);
         computeLastPos(node);
@@ -199,5 +203,9 @@ public class TreeVisitor {
 
     public Map<Integer, Node> getOperandPosition() {
         return operandPosition;
+    }
+
+    public Set<String> getAlphabet() {
+        return alphabet;
     }
 }
