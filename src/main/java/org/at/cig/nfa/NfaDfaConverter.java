@@ -1,6 +1,8 @@
 package org.at.cig.nfa;
 
 
+import org.at.cig.util.Printer;
+
 import java.util.*;
 // This class converts NFA -> DFA using algorithm 3.20
 public class NfaDfaConverter {
@@ -15,6 +17,7 @@ public class NfaDfaConverter {
 
     public NfaDfaConverter() {
         transitionTable = buildTransitionTable();
+    //    Printer.outDot2(transitionTable);
     }
 
     public void run() {
@@ -42,7 +45,8 @@ public class NfaDfaConverter {
                 addTransition(dTransition, T, i, U);
             }
         }
-        System.out.print(dTransition);
+       // System.out.print(dTransition);
+        Printer.outDot3(dTransition);
     }
 
     private Set<Integer> move(Set<Integer> T, int i) {
