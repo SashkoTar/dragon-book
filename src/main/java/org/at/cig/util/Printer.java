@@ -2,7 +2,9 @@ package org.at.cig.util;
 
 
 import org.at.cig.common.Node;
+import org.at.cig.common.State;
 import org.at.cig.common.Transition;
+import org.at.cig.common.TransitionTableImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +67,25 @@ public class Printer {
         }
     }
 
+    public static void outDotTransitionTable(TransitionTableImpl transitionTable) {
+
+        Map<State, Map<String, State>> dTransition = transitionTable.getdTransition();
+
+
+        System.out.println("rankdir=TB;");
+        System.out.println("size=\"8,5\"");
+//        System.out.println(startNodes + ";");
+//        System.out.println(finishNodes + ";");
+        System.out.println("node [shape = circle];");
+        for(Set<Integer> state : dTransition.keySet()) {
+            for (String i : dTransition.get(state).keySet()) {
+                if(dTransition.get(state).get(i).size() == 0) {
+                    continue;
+                }
+                System.out.println(convertStateToString(state) + " -> " + convertStateToString(dTransition.get(state).get(i)) + " [label=\"" + i + "\"];");
+            }
+        }
+    }
 
     public static void outDot3(Map<Set<Integer>, Map<Integer, Set<Integer>>> transitionTable) {
         String finishNodes = "node [shape = doublecircle]; ";

@@ -1,31 +1,20 @@
 package org.at.cig.common;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Created by otarasenko on 5/4/15.
+ * Created with IntelliJ IDEA.
+ * User: Sashko
+ * Date: 5/16/15
+ * Time: 7:55 PM
+ * To change this template use File | Settings | File Templates.
  */
-public class TransitionTable {
+public interface TransitionTable<K, V> {
+    void addTransition(K stateT, V inputSymbol, K stateU);
 
-    Map<State, Map<String, State>> dTransition = new HashMap<State, Map<String, State>>();
+    Map<V, K> forState(K state);
 
-    public void addTransition(State T, String i, State U) {
-        if(dTransition.containsKey(T)) {
-            dTransition.get(T).put(i, U);
-        }else {
-            Map<String, State> transition = new HashMap<String, State>();
-            transition.put(i, U);
-            dTransition.put(T, transition);
-        }
-    }
+    K forState(K state, V inputSymbol);
 
-
-    public void print() {
-        for(State state : dTransition.keySet()) {
-            System.out.println(state + "    " + dTransition.get(state));
-        }
-    }
-
+    Object [] getStatesAsArray();
 }

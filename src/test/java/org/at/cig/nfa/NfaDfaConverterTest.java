@@ -1,55 +1,38 @@
 package org.at.cig.nfa;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Sashko
- * Date: 4/6/15
- * Time: 11:43 PM
- * To change this template use File | Settings | File Templates.
- */
 public class NfaDfaConverterTest {
 
     @Test
-    public void setShouldBeEqual() {
-        Set<Integer> set1 = new HashSet<Integer>();
-        set1.add(1);
-        set1.add(3);
-        set1.add(14);
+    public void shouldConvertRegexToDfa() {
+        NfaDfaConverter converter = new NfaDfaConverter();
+        Map<Set<Integer>, Map<Integer, Set<Integer>>> dTransition = converter.run().getdTransition();
+        Set [] states = dTransition.keySet().toArray(new Set[4]);
+        Set stateA = states[0];
+        Set stateB = states[1];
+        Set stateC = states[2];
+        Set stateD = states[3];
 
-        Set<Integer> set2 = new HashSet<Integer>();
-        set2.add(3);
-        set2.add(1);
-        set2.add(14);
+        Assert.assertEquals(stateB, dTransition.get(stateA).get(2));
+        Assert.assertEquals(stateD, dTransition.get(stateA).get(0));
 
-        assertEquals(set1, set2);
+        Assert.assertEquals(stateD, dTransition.get(stateB).get(0));
+        Assert.assertEquals(stateC, dTransition.get(stateB).get(2));
 
-    }
+        Assert.assertEquals(stateD, dTransition.get(stateC).get(0));
 
-  //  @Test
-    public void shouldContain() {
-        Set<Integer> set1 = new HashSet<Integer>();
-        set1.add(1);
-        set1.add(3);
-        set1.add(14);
-        Set<Set<Integer>> markedSets = new HashSet<Set<Integer>>();
-        markedSets.add(set1);
+        Assert.assertEquals(stateD, dTransition.get(stateD).get(0));
+        Assert.assertEquals(stateC, dTransition.get(stateD).get(1));
+        Assert.assertEquals(stateB, dTransition.get(stateD).get(2));
 
 
-        Set<Integer> set2 = new HashSet<Integer>();
-        set2.add(2);
-        set2.add(1);
-        set2.add(14);
-
-        assertTrue(markedSets.contains(set2));
-
+        //     Printer.outDotTransitionTable(transitionTable);
     }
 
 }

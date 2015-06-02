@@ -23,14 +23,14 @@ public class TreeVisitor {
 
     public void run(Node node) {
         visit(node);
-        System.out.println("--------- FOLLOWPOS---------");
+/*        System.out.println("--------- FOLLOWPOS---------");
         for(Integer position : followPos.keySet()) {
             System.out.println("Position " + position + " ==> " + followPos.get(position));
         }
         System.out.println("--------- OPERANDS---------");
         for(Integer position : operandPosition.keySet()) {
             System.out.println("Position " + position + " Operand " + operandPosition.get(position).getName());
-        }
+        }*/
     }
 
     public void visit(Node visitedNode) {
@@ -38,7 +38,7 @@ public class TreeVisitor {
             visit(node);
         }
         handleNode(visitedNode);
-        print();
+      //  print();
     }
 
     private void handleNode(Node node) {

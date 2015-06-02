@@ -1,10 +1,6 @@
 package org.at.cig.regex;
 
-import org.at.cig.common.Node;
-import org.at.cig.common.State;
-import org.at.cig.common.StateHolder;
-import org.at.cig.common.TransitionTable;
-import org.at.cig.dsl.TreeBuilder;
+import org.at.cig.common.*;
 import org.at.cig.util.InfixPostfixConverter;
 import org.at.cig.util.RegexParser;
 import org.at.cig.util.TreeVisitor;
@@ -21,9 +17,9 @@ public class RegexDfaConverter {
     private Map<Integer, Set<Integer>> followPos;
     private Map<Node, Set<Integer>> firstPos;
     private StateHolder dStates = new StateHolder();
-    private TransitionTable dTran = new TransitionTable();
+    private TransitionTable dTran = new TransitionTableImpl();
 
-    public void convert() {
+    public TransitionTable convert() {
         initDStates();
         while (dStates.hasUnmarked()) {
             State s = dStates.next();
@@ -41,6 +37,7 @@ public class RegexDfaConverter {
                 dTran.addTransition(s, a, u);
             }
         }
+        return dTran;
     }
 
 
@@ -53,7 +50,7 @@ public class RegexDfaConverter {
         }
     }
 
-    public void run() {
+    public TransitionTable run() {
         /*       TreeBuilder builder = new TreeBuilder();
 Node treeRoot =
 builder
@@ -76,7 +73,7 @@ builder
         .addLeafChild("b")
         .build();*/
         InfixPostfixConverter infixPostfixConverter = new InfixPostfixConverter();
-        String converted = infixPostfixConverter.handle("(a|b|c)*abb#");
+        String converted = infixPostfixConverter.handle("(a|b)*abb#");
         RegexParser parser = new RegexParser();
         TreeVisitor visitor = new TreeVisitor();
         visitor.run(parser.parse(converted));
@@ -84,13 +81,17 @@ builder
         this.firstPos = visitor.getFirstPos();
         this.followPos = visitor.getFollowPos();
         this.alphabet = visitor.getAlphabet();
-        convert();
-        dTran.print();
+        TransitionTable transitionTable = convert();
+      //  Printer.outDotTransitionTable(transitionTable);
+        return transitionTable;
+
+     //   dTran.print();
     }
 
     public static void main(String[] args) {
         RegexDfaConverter converter = new RegexDfaConverter();
         converter.run();
+
     }
 
 }
