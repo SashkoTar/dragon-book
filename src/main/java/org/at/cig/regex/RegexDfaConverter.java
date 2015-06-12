@@ -25,7 +25,7 @@ public class RegexDfaConverter {
             State s = dStates.next();
             for (String a : alphabet) {
                 State u = new State();
-                for (Integer position : s) {
+                for (Object position : s) {
                     if (operandPosition.get(position).getName().equals(a)) {
                         //u.merge(followPos.get(operandPosition.get(position)));
                         u.merge(followPos.get(position));
@@ -81,6 +81,7 @@ builder
         this.firstPos = visitor.getFirstPos();
         this.followPos = visitor.getFollowPos();
         this.alphabet = visitor.getAlphabet();
+        //noinspection UnnecessaryLocalVariable
         TransitionTable transitionTable = convert();
       //  Printer.outDotTransitionTable(transitionTable);
         return transitionTable;

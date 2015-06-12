@@ -19,11 +19,9 @@ import static junit.framework.Assert.assertTrue;
  */
 public class PrinterTest {
 
-    private RegexNfaConverter converter;
-
     @Before
     public void init() {
-        this.converter = new RegexNfaConverter();
+        RegexNfaConverter converter = new RegexNfaConverter();
     }
 
 

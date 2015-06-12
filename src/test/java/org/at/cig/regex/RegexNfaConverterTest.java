@@ -8,8 +8,10 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 
 public class RegexNfaConverterTest {
@@ -131,7 +133,7 @@ public class RegexNfaConverterTest {
         Fragment sF = buildSimpleFragmentFor("s");
         Fragment tF = buildSimpleFragmentFor("t");
 
-        sF = converter.or(sF, tF);
+        converter.or(sF, tF);
         assertEquals(6, calculateTotalTransitionNumber());
     }
 

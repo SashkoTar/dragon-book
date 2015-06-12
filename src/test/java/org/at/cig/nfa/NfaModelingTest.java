@@ -1,11 +1,8 @@
 package org.at.cig.nfa;
 
-import org.at.cig.nfa.NfaModeling;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -27,33 +24,22 @@ public class NfaModelingTest {
         modeling = new NfaModeling();
     }
 
+
     @Test
-    public void shouldCheckNext() {
-        assertEquals(2, modeling.nextSymbol());
-        assertEquals(0, modeling.nextSymbol());
-        assertEquals(1, modeling.nextSymbol());
-        assertEquals(-1, modeling.nextSymbol());
+    public void shouldAcceptString() {
+        modeling.setInputString(new int [] {0,1,0,2});
+        Assert.assertTrue(modeling.model());
     }
 
 
     @Test
-    public void shouldFindFiniteState() {
-        Set<Integer> S = new HashSet<Integer>();
-        S.add(2);
-        S.add(1);
-        S.add(0);
-        S.add(3);
-        assertTrue(modeling.isAnyFiniteState(S));
+    public void shouldAcceptStringWithNonDefault() {
+        modeling.finishState.clear();
+        modeling.finishState.add(2);
+        modeling.setInputString(new int [] {0,1});
+        Assert.assertTrue(modeling.model());
     }
 
-    @Test
-    public void shouldNotFindFiniteState() {
-        Set<Integer> S = new HashSet<Integer>();
-        S.add(2);
-        S.add(1);
-        S.add(0);
-        S.add(5);
-        assertFalse(modeling.isAnyFiniteState(S));
-    }
+
 
 }

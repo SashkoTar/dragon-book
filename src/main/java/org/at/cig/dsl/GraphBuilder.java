@@ -10,10 +10,10 @@ import java.util.Set;
  */
 public class GraphBuilder {
 
-    Node nodeStart;
-    Node nodeTo;
-    Transition transition;
-    Node currentNode;
+    private Node nodeStart;
+    private Node nodeTo;
+    private Transition transition;
+    private Node currentNode;
 
     public GraphBuilder() {
         Node.getNodes().clear();

@@ -1,16 +1,31 @@
 package org.at.cig.nfa;
 
+import org.at.cig.common.State;
+import org.at.cig.common.TransitionTable;
+import org.at.cig.common.TransitionTableImpl;
+
 import java.util.*;
 
 // This class models NFA using algorithm 3.22
 public class NfaModeling {
 
 
-    private Set<Integer>[][] transitionTable;
+    TransitionTable<State, Object> nfaTransitionTable;
 
-    private int [] inputString = {2,0,1};
+    private int [] inputString;// = {2,0,1};
     private int position = 0;
-    private Set<Integer> F = new HashSet<Integer>();
+
+    private State finishState;
+
+    public State getFinishState() {
+        return finishState;
+    }
+
+    public void setFinishState(State finishState) {
+        this.finishState = finishState;
+    }
+
+
 
 
     public static void main(String[] args) {
@@ -18,9 +33,17 @@ public class NfaModeling {
         modeler.run();
     }
 
+    public int[] getInputString() {
+        return inputString;
+    }
+
+    public void setInputString(int[] inputString) {
+        this.inputString = inputString;
+    }
+
     public NfaModeling() {
-        transitionTable = buildTransitionTable();
-        F.add(3);
+        nfaTransitionTable = buildTransitionTable();
+        finishState.add(3);
     }
 
     public void run() {
@@ -29,20 +52,17 @@ public class NfaModeling {
 
     public boolean model() {
         Integer i = nextSymbol();
-        Set<Integer> T = e_closure(buildSet(0));
+        State T = eClosure(buildSet(0));
         while (!isEndOfLine(i)) {
-            T = e_closure(move(T, i));
+            T = eClosure(move(T, i));
             i = nextSymbol();
         }
-        if(isAnyFiniteState(T)) {
-            return true;
-        }
-        return false;
+        return isAnyFiniteState(T);
     }
 
-    public boolean isAnyFiniteState(Set<Integer> s) {
-        for(Integer state : s) {
-            if(F.contains(state)) {
+    private boolean isAnyFiniteState(State s) {
+        for(Object state : s) {
+            if(finishState.contains(state)) {
                 return true;
             }
         }
@@ -54,7 +74,7 @@ public class NfaModeling {
         return i < 0;
     }
 
-    public int nextSymbol() {
+    private int nextSymbol() {
         if(position == inputString.length) {
             return -1;
         }
@@ -62,47 +82,47 @@ public class NfaModeling {
     }
 
 
-    private Set<Integer> move(Set<Integer> T, int i) {
-        Set<Integer> stateSet = new HashSet<Integer>();
-        for (int state : T) {
-            if (transitionTable[state][i] != null) {
-                stateSet.addAll(transitionTable[state][i]);
+    private State move(State setOfStates, Object i) {
+        State oneTransitionStates = new State();
+        State state = new State();
+        for (Object j : setOfStates) {
+            state.clear();
+            state.add(j);
+            if (nfaTransitionTable.forState(state, i) != null) {
+                oneTransitionStates.merge(nfaTransitionTable.forState(state, i));
             }
         }
-        return stateSet;
-    }
-
-    private Map<Set<Integer>, Map<Integer, Set<Integer>>> addTransition(Map<Set<Integer>, Map<Integer, Set<Integer>>> dTransition, Set<Integer> T, Integer i, Set<Integer> U) {
-        if (dTransition.containsKey(T)) {
-            dTransition.get(T).put(i, U);
-        } else {
-            Map<Integer, Set<Integer>> transition = new HashMap<Integer, Set<Integer>>();
-            transition.put(i, U);
-            dTransition.put(T, transition);
-        }
-        return dTransition;
+        return oneTransitionStates;
     }
 
 
-    public Set<Integer> e_closure(Set<Integer> states) {
-        Set<Integer> stateSet = new HashSet<Integer>();
-        Stack<Integer> stack = new Stack<Integer>();
-        for (int i : states) {
+
+    public State eClosure(State states) {
+        Set stateSet = new HashSet();
+        Stack stack = new Stack();
+        for (Object i : states) {
             stateSet.add(i);
             stack.push(i);
         }
         while (!stack.empty()) {
-            int t = stack.pop();
-            Set<Integer> nextStates = transitionTable[t][transitionTable[0].length - 1];
-            for (int u : nextStates) {
+            Object t = stack.pop();
+            Set nextStates = getEmptyTransitionsFromState(t);
+            for (Object u : nextStates) {
                 if (!stateSet.contains(u)) {
                     stateSet.add(u);
                     stack.push(u);
                 }
             }
         }
+        State result = new State();
+        result.merge(stateSet);
+        return result;
+    }
 
-        return stateSet;
+    private Set getEmptyTransitionsFromState(Object i) {
+        State state = new State();
+        state.add(i);
+        return nfaTransitionTable.forState(state, nfaTransitionTable.getEpsilon());
     }
 
     private void print(String message, Set<Integer> states) {
@@ -126,40 +146,42 @@ public class NfaModeling {
         System.out.println("");
     }
 
-    public Set<Integer>[][] buildTransitionTable() {
-        Set<Integer>[][] tt = new HashSet[4][4];
-        //----ROW  1 -------
-        tt[0][0] = buildSet(1);
-        tt[0][1] = null;
-        tt[0][2] = buildSet(3);
-        tt[0][3] = buildSet(0);
-//----ROW  2 -------
-        tt[1][0] = null;
-        tt[1][1] = buildSet(2);
-        tt[1][2] = null;
-        tt[1][3] = buildSet(0, 1);
-//----ROW  2 -------
-        tt[2][0] = buildSet(1);
-        tt[2][1] = null;
-        tt[2][2] = null;
-        tt[2][3] = buildSet(2);
 
-//----ROW  2 -------
-        tt[3][0] = null;
-        tt[3][1] = null;
-        tt[3][2] = buildSet(2);
-        tt[3][3] = buildSet(2, 3);
 
-        return tt;
+    private TransitionTable buildTransitionTable() {
+        TransitionTable<State, Integer> table = new TransitionTableImpl<State, Integer>();
+        State state0 = buildSet(0);
+        State state1 = buildSet(1);
+        State state2 = buildSet(2);
+        State state3 = buildSet(3);
+
+        table.setEpsilon(3);
+        table.setStartState(state0);
+
+        table.addTransition(state0, 0, state1);
+        table.addTransition(state0, 2, state3);
+        table.addTransition(state0, 3, state0);
+
+        table.addTransition(state1, 1, state2);
+        table.addTransition(state1, 3, buildSet(0,1));
+
+        table.addTransition(state2, 0, state1);
+        table.addTransition(state2, 3, state2);
+
+        table.addTransition(state3, 2, state2);
+        table.addTransition(state3, 3, buildSet(2,3));
+
+        return table;
     }
-
-    public Set<Integer> buildSet(Integer... state) {
-        Set<Integer> states = new HashSet<Integer>();
-        for (int i : state) {
+    private State buildSet(Object... state) {
+        State states = new State();
+        for(Object i : state) {
             states.add(i);
         }
         return states;
     }
+
+
 
 
 }

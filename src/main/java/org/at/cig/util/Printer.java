@@ -1,10 +1,7 @@
 package org.at.cig.util;
 
 
-import org.at.cig.common.Node;
-import org.at.cig.common.State;
-import org.at.cig.common.Transition;
-import org.at.cig.common.TransitionTableImpl;
+import org.at.cig.common.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,12 +63,9 @@ public class Printer {
             }
         }
     }
-
+/*
     public static void outDotTransitionTable(TransitionTableImpl transitionTable) {
-
         Map<State, Map<String, State>> dTransition = transitionTable.getdTransition();
-
-
         System.out.println("rankdir=TB;");
         System.out.println("size=\"8,5\"");
 //        System.out.println(startNodes + ";");
@@ -85,11 +79,29 @@ public class Printer {
                 System.out.println(convertStateToString(state) + " -> " + convertStateToString(dTransition.get(state).get(i)) + " [label=\"" + i + "\"];");
             }
         }
+    } */
+
+    public static void outDotTransitionTableForNFA(TransitionTable transitionTable) {
+        Map<Set<Integer>, Map<Integer, Set<Integer>>> dTransition = transitionTable.getTransitions();
+        System.out.println("rankdir=LR;");
+        System.out.println("size=\"8,5\"");
+        System.out.println("node [shape = circle];");
+        for(Set<Integer> state : dTransition.keySet()) {
+            for (Integer i : dTransition.get(state).keySet()) {
+                if(dTransition.get(state).get(i).size() == 0) {
+                    continue;
+                }
+
+                for(Integer j : dTransition.get(state).get(i)) {
+                    System.out.println(convertStateToString(state) + " -> " + convertStateToString(j) + " [label=\"" + i + "\"];");
+                }
+            }
+        }
     }
 
     public static void outDot3(Map<Set<Integer>, Map<Integer, Set<Integer>>> transitionTable) {
-        String finishNodes = "node [shape = doublecircle]; ";
-        String startNodes = "node [shape = Mcircle]; ";
+        //String finishNodes = "node [shape = doublecircle]; ";
+        //String startNodes = "node [shape = Mcircle]; ";
 
         System.out.println("rankdir=TB;");
         System.out.println("size=\"8,5\"");
@@ -102,9 +114,9 @@ public class Printer {
                     continue;
                 }
                 System.out.println(convertStateToString(state) + " -> " + convertStateToString(transitionTable.get(state).get(i)) + " [label=\"" + i + "\"];");
+                }
             }
         }
-    }
 
     public static String convertStateToString(Set<Integer> state) {
         String s = "S";
@@ -114,9 +126,12 @@ public class Printer {
         return s;
     }
 
+    public static String convertStateToString(Integer i) {
+        return "S_"+i;
+    }
     public static void outDot2(Set<Integer>[][] transitionTable) {
-        String finishNodes = "node [shape = doublecircle]; ";
-        String startNodes = "node [shape = Mcircle]; ";
+       // String finishNodes = "node [shape = doublecircle]; ";
+      //  String startNodes = "node [shape = Mcircle]; ";
         Map<Integer, String> map = new HashMap<Integer, String>();
         map.put(0, "a");
         map.put(1, "b");

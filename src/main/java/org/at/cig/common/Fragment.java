@@ -17,7 +17,7 @@ public class Fragment {
         this(Node.build(), Node.build());
     }
 
-    public Fragment(Node start, Node tail) {
+    private Fragment(Node start, Node tail) {
         this.startNode = start;
         this.tailNode = tail;
         this.startNode.setStart(true);
